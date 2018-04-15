@@ -18,6 +18,7 @@ func New(input string) *Lexer {
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 
+	l.eatWhitespace()
 	tok.Literal = string(l.ch)
 	switch l.ch {
 	case '=':
@@ -52,4 +53,14 @@ func (l *Lexer) readChar() {
 	}
 	l.position = l.readPosition
 	l.readPosition++
+}
+
+func (l *Lexer) eatWhitespace() {
+	for isWhitespace(l.ch) {
+		l.readChar()
+	}
+}
+
+func isWhitespace(ch byte) bool {
+	return ch == ' ' || ch == '\t' || ch == '\n'
 }
