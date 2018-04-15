@@ -47,6 +47,8 @@ func (l *Lexer) NextToken() token.Token {
 		} else if isNumber(l.ch) {
 			tok.Literal = l.readNumber()
 			tok.Type = token.INT
+		} else {
+			tok.Type = token.ILLEGAL
 		}
 		l.readPosition -= 1
 		l.position -= 1

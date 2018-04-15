@@ -66,13 +66,24 @@ func TestNextToken(t *testing.T) {
 		tok := l.NextToken()
 
 		if tok.Type != tt.expectedType {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%q, got=%q",
+			t.Fatalf("TestNextToken[%d] - tokentype wrong. expected=%q, got=%q",
 				i, tt.expectedType, tok.Type)
 		}
 
 		if tok.Literal != tt.expectedLiteral {
-			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
+			t.Fatalf("TestNextToken[%d] - literal wrong. expected=%q, got=%q",
 				i, tt.expectedLiteral, tok.Literal)
 		}
+	}
+}
+
+func TestIllegalToken(t *testing.T) {
+	l := New("~")
+	tok := l.NextToken()
+	if tok.Type != token.ILLEGAL {
+		t.Fatalf("TestIllegalToken - tokentype wrong. expected=ILLEGAL, got=%q", tok.Type)
+	}
+	if tok.Literal != "~" {
+		t.Fatalf("TestIllegalToken - literal wrong. expected=~, got=%q", tok.Literal)
 	}
 }
