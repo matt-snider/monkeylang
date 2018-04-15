@@ -38,9 +38,24 @@ var keywords = map[string]TokenType{
 	"let": LET,
 }
 
+var reversedKeywords = reverseKeywords(keywords)
+
 func LookupIdentifier(ident string) TokenType {
 	if tok, ok := keywords[ident]; ok {
 		return tok
 	}
 	return IDENT
+}
+
+func IsKeyword(tokenType TokenType) bool {
+	_, ok := reversedKeywords[tokenType]
+	return ok
+}
+
+func reverseKeywords(m map[string]TokenType) map[TokenType]string {
+	n := make(map[TokenType]string)
+	for k, v := range m {
+		n[v] = k
+	}
+	return n
 }

@@ -19,42 +19,51 @@ func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 
 	l.eatWhitespace()
-	tok.Literal = string(l.ch)
 	switch l.ch {
 	case '=':
-		tok.Type = token.ASSIGN
+		tok = simpleToken(token.ASSIGN, l.ch)
 	case '+':
-		tok.Type = token.PLUS
+		tok = simpleToken(token.PLUS, l.ch)
 	case ',':
-		tok.Type = token.COMMA
+		tok = simpleToken(token.COMMA, l.ch)
 	case ';':
-		tok.Type = token.SEMICOLON
+		tok = simpleToken(token.SEMICOLON, l.ch)
 	case '(':
-		tok.Type = token.LPAREN
+		tok = simpleToken(token.LPAREN, l.ch)
 	case ')':
-		tok.Type = token.RPAREN
+		tok = simpleToken(token.RPAREN, l.ch)
 	case '{':
-		tok.Type = token.LBRACE
+		tok = simpleToken(token.LBRACE, l.ch)
 	case '}':
-		tok.Type = token.RBRACE
+		tok = simpleToken(token.RBRACE, l.ch)
 	case 0:
-		tok.Type = token.EOF
-		tok.Literal = ""
+		tok = newToken(token.EOF, "")
 	default:
 		if isLetter(l.ch) {
-			tok.Literal = l.readIdentifier()
-			tok.Type = token.LookupIdentifier(tok.Literal)
+			literal := l.readIdentifier()
+			tok = newToken(token.LookupIdentifier(literal), literal)
 		} else if isNumber(l.ch) {
-			tok.Literal = l.readNumber()
-			tok.Type = token.INT
+			tok = newToken(token.INT, l.readNumber())
 		} else {
-			tok.Type = token.ILLEGAL
+			tok = simpleToken(token.ILLEGAL, l.ch)
 		}
-		l.readPosition -= 1
-		l.position -= 1
 	}
-	l.readChar()
+
+	// Only advance lexer position if we have just read a token
+	// that does not manage its own position
+	// i.e. keywords, ints, etc do final increment already
+	if !managesOwnPosition(tok.Type) {
+		l.readChar()
+	}
 	return tok
+}
+
+func simpleToken(tokenType token.TokenType, ch byte) token.Token {
+	return newToken(tokenType, string(ch))
+}
+
+func newToken(tokenType token.TokenType, lit string) token.Token {
+	return token.Token{Type: tokenType, Literal: lit}
 }
 
 func (l *Lexer) readChar() {
@@ -68,21 +77,19 @@ func (l *Lexer) readChar() {
 }
 
 func (l *Lexer) readIdentifier() string {
-	var ident string
+	position := l.position
 	for isLetter(l.ch) {
-		ident += string(l.ch)
 		l.readChar()
 	}
-	return ident
+	return l.input[position:l.position]
 }
 
 func (l *Lexer) readNumber() string {
-	var num string
+	position := l.position
 	for isNumber(l.ch) {
-		num += string(l.ch)
 		l.readChar()
 	}
-	return num
+	return l.input[position:l.position]
 }
 
 func (l *Lexer) eatWhitespace() {
@@ -101,4 +108,8 @@ func isLetter(ch byte) bool {
 
 func isNumber(ch byte) bool {
 	return '0' <= ch && ch <= '9'
+}
+
+func managesOwnPosition(tokenType token.TokenType) bool {
+	return token.IsKeyword(tokenType) || tokenType == token.IDENT || tokenType == token.INT
 }
