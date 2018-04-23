@@ -16,6 +16,16 @@ func TestNextToken(t *testing.T) {
 		};
 
 		let result = add(five, ten);
+		if (five == ten) { }
+		if (five != ten) { }
+		if (five > ten) { }
+		if (five < ten) { }
+
+		if (true) { }
+		else { }
+
+		let result3 = 10 - 5 * 5 / 3;
+		return !false;
 	`
 
 	tests := []struct {
@@ -58,6 +68,77 @@ func TestNextToken(t *testing.T) {
 		{token.IDENT, "ten"},
 		{token.RPAREN, ")"},
 		{token.SEMICOLON, ";"},
+
+		// if (five == ten) { }
+		{token.IF, "IF"},
+		{token.LPAREN, "("},
+		{token.IDENT, "five"},
+		{token.EQ, "=="},
+		{token.IDENT, "ten"},
+		{token.LPAREN, ")"},
+		{token.LBRACE, "{"},
+		{token.RBRACE, "}"},
+
+		// if (five != ten) { }
+		{token.IF, "IF"},
+		{token.LPAREN, "("},
+		{token.IDENT, "five"},
+		{token.NOT_EQ, "!="},
+		{token.IDENT, "ten"},
+		{token.LPAREN, ")"},
+		{token.LBRACE, "{"},
+		{token.RBRACE, "}"},
+
+		// if (five > ten) { }
+		{token.IF, "IF"},
+		{token.LPAREN, "("},
+		{token.IDENT, "five"},
+		{token.GT, ">"},
+		{token.IDENT, "ten"},
+		{token.LPAREN, ")"},
+		{token.LBRACE, "{"},
+		{token.RBRACE, "}"},
+
+		// if (five < ten) { }
+		{token.IF, "IF"},
+		{token.LPAREN, "("},
+		{token.IDENT, "five"},
+		{token.LT, "<"},
+		{token.IDENT, "ten"},
+		{token.LPAREN, ")"},
+		{token.LBRACE, "{"},
+		{token.RBRACE, "}"},
+
+		// if (true) { } else { }
+		{token.IF, "IF"},
+		{token.LPAREN, "("},
+		{token.TRUE, "TRUE"},
+		{token.RPAREN, ")"},
+		{token.LBRACE, "{"},
+		{token.RBRACE, "}"},
+		{token.ELSE, "ELSE"},
+		{token.LBRACE, "{"},
+		{token.RBRACE, "}"},
+
+		// let result3 = 10 - 5 * 5 / 3;
+		{token.LET, "LET"},
+		{token.IDENT, "result3"},
+		{token.ASSIGN, "="},
+		{token.INT, "10"},
+		{token.MINUS, "-"},
+		{token.INT, "5"},
+		{token.ASTERISK, "*"},
+		{token.INT, "5"},
+		{token.SLASH, "/"},
+		{token.INT, "3"},
+		{token.SEMICOLON, ";"},
+
+		// return !false;
+		{token.RETURN, "RETURN"},
+		{token.BANG, "!"},
+		{token.FALSE, "FALSE"},
+		{token.SEMICOLON, ";"},
+
 		{token.EOF, ""},
 	}
 
