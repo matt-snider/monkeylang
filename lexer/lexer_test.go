@@ -24,7 +24,7 @@ func TestNextToken(t *testing.T) {
 		if (true) { }
 		else { }
 
-		let result3 = 10 - 5 * 5 / 3;
+		let x = 10 - 5 * 5 / 3;
 		return !false;
 	`
 
@@ -70,59 +70,59 @@ func TestNextToken(t *testing.T) {
 		{token.SEMICOLON, ";"},
 
 		// if (five == ten) { }
-		{token.IF, "IF"},
+		{token.IF, "if"},
 		{token.LPAREN, "("},
 		{token.IDENT, "five"},
 		{token.EQ, "=="},
 		{token.IDENT, "ten"},
-		{token.LPAREN, ")"},
+		{token.RPAREN, ")"},
 		{token.LBRACE, "{"},
 		{token.RBRACE, "}"},
 
 		// if (five != ten) { }
-		{token.IF, "IF"},
+		{token.IF, "if"},
 		{token.LPAREN, "("},
 		{token.IDENT, "five"},
 		{token.NOT_EQ, "!="},
 		{token.IDENT, "ten"},
-		{token.LPAREN, ")"},
+		{token.RPAREN, ")"},
 		{token.LBRACE, "{"},
 		{token.RBRACE, "}"},
 
 		// if (five > ten) { }
-		{token.IF, "IF"},
+		{token.IF, "if"},
 		{token.LPAREN, "("},
 		{token.IDENT, "five"},
 		{token.GT, ">"},
 		{token.IDENT, "ten"},
-		{token.LPAREN, ")"},
+		{token.RPAREN, ")"},
 		{token.LBRACE, "{"},
 		{token.RBRACE, "}"},
 
 		// if (five < ten) { }
-		{token.IF, "IF"},
+		{token.IF, "if"},
 		{token.LPAREN, "("},
 		{token.IDENT, "five"},
 		{token.LT, "<"},
 		{token.IDENT, "ten"},
-		{token.LPAREN, ")"},
+		{token.RPAREN, ")"},
 		{token.LBRACE, "{"},
 		{token.RBRACE, "}"},
 
 		// if (true) { } else { }
-		{token.IF, "IF"},
+		{token.IF, "if"},
 		{token.LPAREN, "("},
-		{token.TRUE, "TRUE"},
+		{token.TRUE, "true"},
 		{token.RPAREN, ")"},
 		{token.LBRACE, "{"},
 		{token.RBRACE, "}"},
-		{token.ELSE, "ELSE"},
+		{token.ELSE, "else"},
 		{token.LBRACE, "{"},
 		{token.RBRACE, "}"},
 
-		// let result3 = 10 - 5 * 5 / 3;
-		{token.LET, "LET"},
-		{token.IDENT, "result3"},
+		// let x = 10 - 5 * 5 / 3;
+		{token.LET, "let"},
+		{token.IDENT, "x"},
 		{token.ASSIGN, "="},
 		{token.INT, "10"},
 		{token.MINUS, "-"},
@@ -134,9 +134,9 @@ func TestNextToken(t *testing.T) {
 		{token.SEMICOLON, ";"},
 
 		// return !false;
-		{token.RETURN, "RETURN"},
+		{token.RETURN, "return"},
 		{token.BANG, "!"},
-		{token.FALSE, "FALSE"},
+		{token.FALSE, "false"},
 		{token.SEMICOLON, ";"},
 
 		{token.EOF, ""},
