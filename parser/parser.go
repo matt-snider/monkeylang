@@ -29,5 +29,47 @@ func (p *Parser) nextToken() {
 }
 
 func (p *Parser) Parse() *ast.Program {
-	return nil
+	program := ast.Program{}
+
+	for p.currToken.Type != token.EOF {
+		statement := p.parseStatement()
+		if statement != nil {
+			program.Statements = append(program.Statements, statement)
+		}
+		p.nextToken()
+	}
+
+	return &program
+}
+
+func (p *Parser) parseStatement() *ast.LetStatement {
+	switch p.currToken.Type {
+	case token.LET:
+		return p.parseLetStatement()
+	default:
+		// TODO: error handling
+		return nil
+	}
+}
+
+func (p *Parser) parseLetStatement() *ast.LetStatement {
+	letStatement := ast.LetStatement{Token: p.currToken}
+
+	if p.peekToken.Type != token.IDENT {
+		// TODO: error handling
+		return nil
+	}
+	letStatement.Name = &ast.Identifier{
+		Token: p.peekToken,
+		Value: p.peekToken.Literal,
+	}
+
+	p.nextToken()
+	p.nextToken()
+	if p.currToken.Type != token.ASSIGN {
+		// TODO: error handling
+		return nil
+	}
+
+	return &letStatement
 }

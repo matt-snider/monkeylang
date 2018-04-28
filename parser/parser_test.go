@@ -7,7 +7,7 @@ import (
 	"github.com/matt-snider/monkey/lexer"
 )
 
-func TestParser(t *testing.T) {
+func TestParsingLetStatements(t *testing.T) {
 	l := lexer.New(`
 		let x = 5;
 		let y = 10;
@@ -62,7 +62,7 @@ func testLetStatement(t *testing.T, s ast.Statement, expectedIdentifier string) 
 			expectedIdentifier, letStatement.Name.Value)
 		return false
 	}
-	if letStatement.TokenLiteral() != expectedIdentifier {
+	if letStatement.Name.TokenLiteral() != expectedIdentifier {
 		t.Errorf("letStatement.TokenLiteral() not '%s', got=%s",
 			expectedIdentifier, letStatement.TokenLiteral())
 		return false
