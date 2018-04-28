@@ -7,6 +7,25 @@ import (
 	"github.com/matt-snider/monkey/lexer"
 )
 
+/**
+ * General helpers
+ */
+func checkParserErrors(t *testing.T, p *Parser) {
+	errors := p.Errors()
+	if len(errors) == 0 {
+		return
+	}
+
+	t.Errorf("parser has %d errors", len(errors))
+	for _, msg := range errors {
+		t.Errorf(" - error: %q", msg)
+	}
+	t.FailNow()
+}
+
+/**
+ * LetStatements
+ */
 func TestParsingLetStatements(t *testing.T) {
 	l := lexer.New(`
 		let x = 5;
@@ -15,6 +34,8 @@ func TestParsingLetStatements(t *testing.T) {
 	`)
 	p := New(l)
 	program := p.Parse()
+	checkParserErrors(t, p)
+
 	if program == nil {
 		t.Fatal("Parse() returned an empty program (nil)")
 	}
@@ -36,6 +57,31 @@ func TestParsingLetStatements(t *testing.T) {
 		statement := program.Statements[i]
 		if !testLetStatement(t, statement, expectation.identifier) {
 			return
+		}
+	}
+}
+
+func TestParsingErroneousLetStatement(t *testing.T) {
+	l := lexer.New(`
+		let x;
+		let
+	`)
+	p := New(l)
+	p.Parse()
+
+	if len(p.Errors()) != 2 {
+		t.Fatalf("Expected %d errors, got %d", 2, len(p.Errors()))
+	}
+
+	expectedErrors := []string{
+		"expected token of type =, got ;",
+		"expected token of type IDENT, got EOF",
+	}
+	for i, expectation := range expectedErrors {
+		actual := p.Errors()[i]
+		if expectation != actual {
+			t.Errorf("Expected parser error %d to be '%s', got '%s'",
+				i, expectation, actual)
 		}
 	}
 }

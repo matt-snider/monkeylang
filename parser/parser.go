@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/matt-snider/monkey/ast"
 	"github.com/matt-snider/monkey/lexer"
 	"github.com/matt-snider/monkey/token"
@@ -11,6 +13,7 @@ type Parser struct {
 
 	currToken token.Token
 	peekToken token.Token
+	errors    []string
 }
 
 func New(l *lexer.Lexer) *Parser {
@@ -31,7 +34,7 @@ func (p *Parser) nextToken() {
 func (p *Parser) Parse() *ast.Program {
 	program := ast.Program{}
 
-	for p.currToken.Type != token.EOF {
+	for !p.currTokenIs(token.EOF) {
 		statement := p.parseStatement()
 		if statement != nil {
 			program.Statements = append(program.Statements, statement)
@@ -40,6 +43,10 @@ func (p *Parser) Parse() *ast.Program {
 	}
 
 	return &program
+}
+
+func (p *Parser) Errors() []string {
+	return p.errors
 }
 
 func (p *Parser) parseStatement() *ast.LetStatement {
@@ -52,23 +59,55 @@ func (p *Parser) parseStatement() *ast.LetStatement {
 	}
 }
 
+func (p *Parser) currTokenIs(t token.TokenType) bool {
+	return p.currToken.Type == t
+}
+
+func (p *Parser) peekTokenIs(t token.TokenType) bool {
+	return p.peekToken.Type == t
+}
+
+func (p *Parser) expectPeek(t token.TokenType) bool {
+	if p.peekTokenIs(t) {
+		p.nextToken()
+		return true
+	} else {
+		return false
+	}
+}
+
+func (p *Parser) peekError(t token.TokenType) {
+	error := fmt.Sprintf(
+		"expected token of type %s, got %s",
+		t, p.currToken.Type,
+	)
+	p.errors = append(p.errors, error)
+}
+
+/**
+ * LetStatement
+ */
 func (p *Parser) parseLetStatement() *ast.LetStatement {
 	letStatement := ast.LetStatement{Token: p.currToken}
 
-	if p.peekToken.Type != token.IDENT {
-		// TODO: error handling
+	if !p.expectPeek(token.IDENT) {
+		p.peekError(token.IDENT)
 		return nil
 	}
 	letStatement.Name = &ast.Identifier{
-		Token: p.peekToken,
-		Value: p.peekToken.Literal,
+		Token: p.currToken,
+		Value: p.currToken.Literal,
 	}
 
-	p.nextToken()
-	p.nextToken()
-	if p.currToken.Type != token.ASSIGN {
-		// TODO: error handling
+	if !p.expectPeek(token.ASSIGN) {
+		p.peekError(token.ASSIGN)
 		return nil
+	}
+
+	// Skip over expression until EOL
+	// TODO: letStatement Expression
+	for !p.currTokenIs(token.SEMICOLON) {
+		p.nextToken()
 	}
 
 	return &letStatement
