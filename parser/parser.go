@@ -49,10 +49,12 @@ func (p *Parser) Errors() []string {
 	return p.errors
 }
 
-func (p *Parser) parseStatement() *ast.LetStatement {
+func (p *Parser) parseStatement() ast.Statement {
 	switch p.currToken.Type {
 	case token.LET:
 		return p.parseLetStatement()
+	case token.RETURN:
+		return p.parseReturnStatement()
 	default:
 		// TODO: error handling
 		return nil
@@ -111,4 +113,12 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 	}
 
 	return &letStatement
+}
+
+/**
+ * ReturnStatement
+ */
+func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
+	returnStatement := ast.ReturnStatement{Token: p.currToken}
+	return &returnStatement
 }

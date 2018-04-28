@@ -116,3 +116,32 @@ func testLetStatement(t *testing.T, s ast.Statement, expectedIdentifier string) 
 
 	return true
 }
+
+/**
+ * ReturnStatement
+ */
+
+func TestParsingReturnStatements(t *testing.T) {
+	l := lexer.New(`
+		return 5;
+		return add(5, 3);
+	`)
+	p := New(l)
+	program := p.Parse()
+
+	if len(program.Statements) != 2 {
+		t.Fatalf("Parse() should return a program with %d statements, got %d",
+			2, len(program.Statements))
+	}
+
+	for i, statement := range program.Statements {
+		returnStatement, ok := statement.(*ast.ReturnStatement)
+		if !ok {
+			t.Errorf("Expected statement %d to be a ReturnStatement, got %T",
+				i, statement)
+		}
+		if returnStatement.TokenLiteral() != "return" {
+			t.Errorf("returnStatement.TokenLiteral() not 'return', got %q", returnStatement.TokenLiteral())
+		}
+	}
+}
