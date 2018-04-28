@@ -74,8 +74,8 @@ func TestParsingErroneousLetStatement(t *testing.T) {
 	}
 
 	expectedErrors := []string{
-		"expected token of type =, got ;",
-		"expected token of type IDENT, got EOF",
+		"expected next token to be =, got ;",
+		"expected next token to be IDENT, got EOF",
 	}
 	for i, expectation := range expectedErrors {
 		actual := p.Errors()[i]
