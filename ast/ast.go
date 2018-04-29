@@ -1,9 +1,14 @@
 package ast
 
-import "github.com/matt-snider/monkey/token"
+import (
+	"bytes"
+
+	"github.com/matt-snider/monkey/token"
+)
 
 type Node interface {
 	TokenLiteral() string
+	String() string
 }
 
 type Statement interface {
@@ -32,6 +37,14 @@ func (p *Program) TokenLiteral() string {
 	}
 }
 
+func (p *Program) String() string {
+	var buf bytes.Buffer
+	for _, statement := range p.Statements {
+		buf.WriteString(statement.String())
+	}
+	return buf.String()
+}
+
 /**
  * Identifier
  */
@@ -42,8 +55,13 @@ type Identifier struct {
 }
 
 func (id *Identifier) expressionNode() {}
+
 func (id *Identifier) TokenLiteral() string {
 	return id.Token.Literal
+}
+
+func (id *Identifier) String() string {
+	return id.Value
 }
 
 /**
@@ -57,8 +75,22 @@ type LetStatement struct {
 }
 
 func (ls *LetStatement) statementNode() {}
+
 func (ls *LetStatement) TokenLiteral() string {
 	return ls.Token.Literal
+}
+
+func (ls *LetStatement) String() string {
+	var buf bytes.Buffer
+	buf.WriteString(ls.TokenLiteral())
+	buf.WriteString(" ")
+	buf.WriteString(ls.Name.String())
+	buf.WriteString(" = ")
+	if ls.Value != nil {
+		buf.WriteString(ls.Value.String())
+	}
+	buf.WriteString(";")
+	return buf.String()
 }
 
 /**
@@ -71,6 +103,18 @@ type ReturnStatement struct {
 }
 
 func (rs *ReturnStatement) statementNode() {}
+
 func (rs *ReturnStatement) TokenLiteral() string {
 	return rs.Token.Literal
+}
+
+func (rs *ReturnStatement) String() string {
+	var buf bytes.Buffer
+	buf.WriteString(rs.TokenLiteral())
+	buf.WriteString(" ")
+	if rs.Value != nil {
+		buf.WriteString(rs.Value.String())
+	}
+	buf.WriteString(";")
+	return buf.String()
 }
