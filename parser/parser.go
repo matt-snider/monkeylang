@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/matt-snider/monkey/ast"
 	"github.com/matt-snider/monkey/lexer"
@@ -84,6 +85,23 @@ func (p *Parser) peekError(t token.TokenType) {
 		t, p.peekToken.Type,
 	)
 	p.errors = append(p.errors, error)
+}
+
+/**
+ *  IntegerLiteral
+ */
+func (p *Parser) parseIntegerLiteral() *ast.IntegerLiteral {
+	value, err := strconv.ParseInt(p.currToken.Literal, 0, 64)
+	if err != nil {
+		error := fmt.Sprintf("could not parse int literal %q",
+			p.currToken.Literal)
+		p.errors = append(p.errors, error)
+		return nil
+	}
+	return &ast.IntegerLiteral{
+		Token: p.currToken,
+		Value: value,
+	}
 }
 
 /**
