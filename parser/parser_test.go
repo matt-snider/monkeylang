@@ -24,6 +24,62 @@ func checkParserErrors(t *testing.T, p *Parser) {
 }
 
 /**
+ * ExpressionStatement
+ */
+
+func TestParsingInfixExpressionStatements(t *testing.T) {
+	cases := []struct {
+		statement string
+		right     string
+		operator  string
+		left      string
+	}{
+		{"5 + 5", "5", "+", "5"},
+		{"5 - 5", "5", "-", "5"},
+		{"5 / 5", "5", "/", "5"},
+		{"5 * 5", "5", "*", "5"},
+		{"5 < 5", "5", "<", "5"},
+		{"5 > 5", "5", ">", "5"},
+		{"5 == 5", "5", "==", "5"},
+		{"5 != 5", "5", "!=", "5"},
+	}
+
+	for _, testCase := range cases {
+	}
+}
+
+func testInfixExpressionStatement(t *testing.T, statement string, right string,
+	operator string, left string) {
+
+	l := lexer.New(statement)
+	p := New(l)
+	program := p.Parse()
+	if program == nil {
+		t.Errorf("Parse() returned an empty program (nil) for statement '%s'",
+			statement)
+		return
+	}
+
+	if len(program.Statements) != 1 {
+		t.Errorf("Expected single infix ExpressionStatement, got %d",
+			len(program.Statements))
+		return
+	}
+
+	expressionStatement, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Errorf("Expected ExpressionStatement, got %T", statement)
+		return
+	}
+
+	infixExpression, ok := expressionStatement.Expression.(*ast.InfixExpression)
+	if !ok {
+		t.Errorf("Expected InfixExpression, got %T", expressionStatement.Expression)
+	}
+
+}
+
+/**
  * LetStatements
  */
 func TestParsingLetStatements(t *testing.T) {

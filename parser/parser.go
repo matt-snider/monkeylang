@@ -88,6 +88,16 @@ func (p *Parser) peekError(t token.TokenType) {
 }
 
 /**
+ * Identifier
+ */
+func (p *Parser) parseIdentifier() *ast.Identifier {
+	return &ast.Identifier{
+		Token: p.currToken,
+		Value: p.currToken.Literal,
+	}
+}
+
+/**
  *  IntegerLiteral
  */
 func (p *Parser) parseIntegerLiteral() *ast.IntegerLiteral {
