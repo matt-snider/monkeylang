@@ -10,21 +10,56 @@ import (
 )
 
 type Parser struct {
-	l *lexer.Lexer
+	l      *lexer.Lexer
+	errors []string
 
 	currToken token.Token
 	peekToken token.Token
-	errors    []string
+
+	prefixParseFns map[token.TokenType]prefixParseFn
+	infixParseFns  map[token.TokenType]infixParseFn
 }
 
+// Pratt parsing functions
+type (
+	prefixParseFn func() ast.Expression
+	infixParseFn  func(ast.Expression) ast.Expression
+)
+
+// Operator precedence
+const (
+	_ int = iota
+	LOWEST
+	EQUALS
+	LESSGREATER
+	SUM
+	PRODUCT
+	PREFIX
+	CALL
+)
+
 func New(l *lexer.Lexer) *Parser {
-	p := &Parser{l: l}
+	p := &Parser{
+		l:              l,
+		prefixParseFns: make(map[token.TokenType]prefixParseFn),
+	}
+
+	// Register Pratt parsing functions
+	p.registerPrefixFn(token.IDENT, p.parseIdentifier)
 
 	// Read two tokens so currToken and peekToken are set
 	p.nextToken()
 	p.nextToken()
 
 	return p
+}
+
+func (p *Parser) registerPrefixFn(tokenType token.TokenType, fn prefixParseFn) {
+	p.prefixParseFns[tokenType] = fn
+}
+
+func (p *Parser) registerInfixFn(tokenType token.TokenType, fn infixParseFn) {
+	p.infixParseFns[tokenType] = fn
 }
 
 func (p *Parser) nextToken() {
@@ -57,8 +92,7 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.RETURN:
 		return p.parseReturnStatement()
 	default:
-		// TODO: error handling
-		return nil
+		return p.parseExpressionStatement()
 	}
 }
 
@@ -90,7 +124,7 @@ func (p *Parser) peekError(t token.TokenType) {
 /**
  * Identifier
  */
-func (p *Parser) parseIdentifier() *ast.Identifier {
+func (p *Parser) parseIdentifier() ast.Expression {
 	return &ast.Identifier{
 		Token: p.currToken,
 		Value: p.currToken.Literal,
@@ -157,4 +191,32 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 
 	return returnStatement
 }
+
+/**
+ * ExpressionStatement
+ */
+
+func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	stmt := &ast.ExpressionStatement{
+		Token: p.currToken,
+		// Expression: p.parseExpression(LOWEST),
+	}
+	stmt.Expression = p.parseExpression(LOWEST)
+
+	if p.peekTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return stmt
+}
+
+func (p *Parser) parseExpression(precedence int) ast.Expression {
+	prefix := p.prefixParseFns[p.currToken.Type]
+
+	if prefix == nil {
+		return nil
+	}
+	leftExp := prefix()
+
+	return leftExp
 }

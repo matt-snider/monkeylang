@@ -24,62 +24,6 @@ func checkParserErrors(t *testing.T, p *Parser) {
 }
 
 /**
- * ExpressionStatement
- */
-
-func TestParsingInfixExpressionStatements(t *testing.T) {
-	cases := []struct {
-		statement string
-		right     string
-		operator  string
-		left      string
-	}{
-		{"5 + 5", "5", "+", "5"},
-		{"5 - 5", "5", "-", "5"},
-		{"5 / 5", "5", "/", "5"},
-		{"5 * 5", "5", "*", "5"},
-		{"5 < 5", "5", "<", "5"},
-		{"5 > 5", "5", ">", "5"},
-		{"5 == 5", "5", "==", "5"},
-		{"5 != 5", "5", "!=", "5"},
-	}
-
-	for _, testCase := range cases {
-	}
-}
-
-func testInfixExpressionStatement(t *testing.T, statement string, right string,
-	operator string, left string) {
-
-	l := lexer.New(statement)
-	p := New(l)
-	program := p.Parse()
-	if program == nil {
-		t.Errorf("Parse() returned an empty program (nil) for statement '%s'",
-			statement)
-		return
-	}
-
-	if len(program.Statements) != 1 {
-		t.Errorf("Expected single infix ExpressionStatement, got %d",
-			len(program.Statements))
-		return
-	}
-
-	expressionStatement, ok := program.Statements[0].(*ast.ExpressionStatement)
-	if !ok {
-		t.Errorf("Expected ExpressionStatement, got %T", statement)
-		return
-	}
-
-	infixExpression, ok := expressionStatement.Expression.(*ast.InfixExpression)
-	if !ok {
-		t.Errorf("Expected InfixExpression, got %T", expressionStatement.Expression)
-	}
-
-}
-
-/**
  * LetStatements
  */
 func TestParsingLetStatements(t *testing.T) {
@@ -199,5 +143,38 @@ func TestParsingReturnStatements(t *testing.T) {
 		if returnStatement.TokenLiteral() != "return" {
 			t.Errorf("returnStatement.TokenLiteral() not 'return', got %q", returnStatement.TokenLiteral())
 		}
+	}
+}
+
+/**
+ * IdentifierExpression
+ */
+
+func TestIdentifierExpression(t *testing.T) {
+	input := "foobar;"
+
+	l := lexer.New(input)
+	p := New(l)
+	program := p.Parse()
+	checkParserErrors(t, p)
+
+	if len(program.Statements) != 1 {
+		t.Fatalf("program should have %d statements, got %d", 1, len(program.Statements))
+	}
+
+	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] should be an ast.ExpressionStatement, got %T", program.Statements[0])
+	}
+
+	ident, ok := stmt.Expression.(*ast.Identifier)
+	if !ok {
+		t.Fatalf("expression should be an *ast.Identifier, got %T", stmt.Expression)
+	}
+	if ident.Value != "foobar" {
+		t.Fatalf("ident.Value should be 'foobar', got %s", ident.Value)
+	}
+	if ident.TokenLiteral() != "foobar" {
+		t.Fatalf("ident.TokenLiteral should be 'foobar', got %s", ident.TokenLiteral())
 	}
 }
