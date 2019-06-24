@@ -147,6 +147,14 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
  * ReturnStatement
  */
 func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
-	returnStatement := ast.ReturnStatement{Token: p.currToken}
-	return &returnStatement
+	returnStatement := &ast.ReturnStatement{Token: p.currToken}
+
+	p.nextToken()
+
+	for !p.currTokenIs(token.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return returnStatement
+}
 }
