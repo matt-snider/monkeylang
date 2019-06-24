@@ -46,6 +46,7 @@ func New(l *lexer.Lexer) *Parser {
 
 	// Register Pratt parsing functions
 	p.registerPrefixFn(token.IDENT, p.parseIdentifier)
+	p.registerPrefixFn(token.INT, p.parseIntegerLiteral)
 
 	// Read two tokens so currToken and peekToken are set
 	p.nextToken()
@@ -134,7 +135,7 @@ func (p *Parser) parseIdentifier() ast.Expression {
 /**
  *  IntegerLiteral
  */
-func (p *Parser) parseIntegerLiteral() *ast.IntegerLiteral {
+func (p *Parser) parseIntegerLiteral() ast.Expression {
 	value, err := strconv.ParseInt(p.currToken.Literal, 0, 64)
 	if err != nil {
 		error := fmt.Sprintf("could not parse int literal %q",
@@ -198,10 +199,9 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	stmt := &ast.ExpressionStatement{
-		Token: p.currToken,
-		// Expression: p.parseExpression(LOWEST),
+		Token:      p.currToken,
+		Expression: p.parseExpression(LOWEST),
 	}
-	stmt.Expression = p.parseExpression(LOWEST)
 
 	if p.peekTokenIs(token.SEMICOLON) {
 		p.nextToken()
